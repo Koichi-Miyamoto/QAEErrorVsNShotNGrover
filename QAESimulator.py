@@ -27,3 +27,23 @@ def QAEQulacs(ampSq, nShot, nGroverMax):
         nGrover = nGroverNext
         
     return nGrovers, n1s
+
+def QAEAnalyticDistFunc(ampSq, nShot, nGroverMax):
+
+    theta = np.arcsin(np.sqrt(ampSq))
+    nGrover = 0
+    nGrovers = [nGrover]
+    n1s = []
+    
+    while True:
+        prob1 = np.sin((2 * nGrover + 1) * theta) ** 2
+        n1s.append(np.random.binomial(nShot, prob1))
+        
+        nGrover = 1 if nGrover == 0 else nGrover * 2
+        
+        if nGrover <= nGroverMax:
+            nGrovers.append(nGrover)
+        else:
+            break
+        
+    return nGrovers, n1s
