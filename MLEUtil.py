@@ -6,7 +6,12 @@ def LikelihoodQAE(theta, nGrovers, n1s, nShot):
     
     for nGrover, n1 in zip(nGrovers, n1s):
         p = np.sin((2.0 * nGrover + 1) * theta) ** 2
-        ret += n1 * np.log(p) + (nShot - n1) * np.log(1.0 - p)
+        if n1 == nShot:
+            ret += n1 * np.log(p)
+        elif n1 == 0:
+            ret += nShot * np.log(1.0 - p)
+        else:
+            ret += n1 * np.log(p) + (nShot - n1) * np.log(1.0 - p)
         
     return ret
 
