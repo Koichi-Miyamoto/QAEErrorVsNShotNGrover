@@ -28,3 +28,28 @@ def FindAmpSqMLERandom(nGrovers, n1s, nShot, thetaLB, thetaUB, numPoints):
             thetaMax = thetaTemp
             likMax = likTemp
     return np.sin(thetaMax) ** 2
+
+def FindAmpSqMLESmart(nGrovers, n1s, nShot, numPoints):
+
+    if nGrovers[0] != 0:
+        raise ValueError("1st entry of nGrovers must be 0")
+        
+    sigmaNum = 5.0 # 5σ
+        
+    thetaMax = np.arcsin(np.sqrt(n1s[0] / nShot)) # MLE for nGrover=0
+    
+    for k in range(len(nGrovers)):
+        sigma = 1.0 / (2.0 * (2.0 * nGrovers[k] + 1.0) * np.sqrt(nShot)) # 1/sqrt{Fisher info}
+        thetaLB = max(thetaMax - sigmaNum * sigma, 0.0)
+        thetaUB = min(thetaMax + sigmaNum * sigma, 0.5 * np.pi)
+        
+        # random search
+        likMax = LikelihoodQAE(thetaMax, nGrovers[:(k + 1)], n1s[:(k + 1)], nShot)
+        for _ in range(numPoints):
+            thetaTemp = np.random.uniform(thetaLB, thetaUB)
+            likTemp = LikelihoodQAE(thetaTemp, nGrovers[:(k + 1)], n1s[:(k + 1)], nShot)
+            if likTemp > likMax:
+                thetaMax = thetaTemp
+                likMax = likTemp
+    
+    return np.sin(thetaMax) ** 2
