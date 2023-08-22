@@ -40,8 +40,6 @@ def IQAEBinom(ampSq, epsilon, alpha, nShotUnit, confint_method="chernoff", minRa
                 p1Min, p1Max = _clopper_pearson_confint(n1Round, nShotRound, alphaRound)
             else:
                 raise Exception("unknown confint_method")
-            
-
 
             if rRound % 2 == 0:
                 gammaMin = np.arcsin(np.sqrt(p1Min))
@@ -72,6 +70,7 @@ def IQAEBinom(ampSq, epsilon, alpha, nShotUnit, confint_method="chernoff", minRa
         n1s.append(n1Round)
 
     ret = {"Estimate":ampSqML,
+           "TotalOracleCalls": np.dot(2 * np.array(nGrovers) + 1, nShots),
            "nGrover":nGrovers,
            "nShots":nShots,
            "n1s":n1s,
