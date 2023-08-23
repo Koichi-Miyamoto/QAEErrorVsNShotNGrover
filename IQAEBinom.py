@@ -14,8 +14,9 @@ def IQAEBinom(ampSq, epsilon, alpha, nShotUnit, confint_method="chernoff", minRa
     thetaInterval = [0, 0.5 * np.pi]
     thetaIntervals = [thetaInterval]
     kmax = np.pi / 4 / epsilon
+    flgStop = False
 
-    while ampSqWidth > epsilon:
+    while True:
         nGrovers.append(nGrover)
         nGroverPrev = nGrover
         kRound = 2 * nGrover + 1
@@ -62,12 +63,19 @@ def IQAEBinom(ampSq, epsilon, alpha, nShotUnit, confint_method="chernoff", minRa
             ampSqML = np.sin(thetaML) ** 2
             ampSqWidth = max(ampSq_u - ampSqML, ampSqML - ampSq_l)
 
+            if ampSqWidth <= epsilon:
+                flgStop = True
+                break
+            
             nGrover = _find_next_k(nGrover, thetaInterval, minRatio)
-
+        
         thetaIntervals.append(thetaInterval)
         ampSqIntervals.append(ampSqInterval)
         nShots.append(nShotRound)
         n1s.append(n1Round)
+
+        if flgStop:
+            break
 
     ret = {"Estimate":ampSqML,
            "TotalOracleCalls": np.dot(2 * np.array(nGrovers) + 1, nShots),

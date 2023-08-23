@@ -1,0 +1,2 @@
+Final roundで、信頼区間がepsilon以下になったときにiterationを終えるのでなく、次のKが見つかるまでiterationを続けてしまっていた
+（final roundのnShotが過剰、errorも過剰に小さい）
