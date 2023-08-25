@@ -1,4 +1,3 @@
-from uu import Error
 import numpy as np
 from scipy.stats import beta
 
@@ -25,6 +24,10 @@ def IQAEFixedGroverBinom(ampSq, epsilon, alpha, nShotUnit, nGroverRatio, confint
         alphaRound = 2 * alpha / 3 * kRound / kmax
         # nMaxRound = 2 / np.sin(np.pi / 21) ** 2 / np.sin(8 * np.pi / 21) ** 2 * np.log(2 / alphaRound)
         rRound = int(kRound * thetaInterval[0] / (0.5 * np.pi))
+        
+        # print(theta)
+        # print(nGrover)
+        # print(prob1)
 
         while True:
             nShotRound += nShotUnit

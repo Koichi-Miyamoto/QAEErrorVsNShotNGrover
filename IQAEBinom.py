@@ -1,4 +1,3 @@
-from uu import Error
 import numpy as np
 from scipy.stats import beta
 
