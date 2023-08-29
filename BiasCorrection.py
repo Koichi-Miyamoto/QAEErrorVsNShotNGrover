@@ -32,8 +32,9 @@ def BiasTaylorExpTo2nd(ampSq, nGrover, nShot):
     theta = np.arcsin(np.sqrt(ampSq))
     k = 2 * nGrover + 1
     sin2ktheta = np.sin(2 * k * theta)
+    cos2ktheta = np.cos(2 * k * theta)
 
-    return (np.cos(2 * theta) * sin2ktheta - k * np.cos(2 * k * theta) * np.sin(2 * theta)) / 4 / k / k / nShot / sin2ktheta
+    return (np.cos(2 * theta) * sin2ktheta - k * cos2ktheta * np.sin(2 * theta)) / 4 / k / k / nShot / sin2ktheta
 
 def BiasTaylorExpTo3rd(ampSq, nGrover, nShot):
 
@@ -42,9 +43,9 @@ def BiasTaylorExpTo3rd(ampSq, nGrover, nShot):
     sin2ktheta = np.sin(2 * k * theta)
     cos2ktheta = np.cos(2 * k * theta)
 
-    term2nd = -4 * (np.sin(2 * theta) * sin2ktheta ** 2 / k / k - 3 / k * np.cos(2 * theta) * cos2ktheta * sin2ktheta 
+    term2nd = -4 * (np.sin(2 * theta) * sin2ktheta ** 2 / k / k + 3 / k * np.cos(2 * theta) * cos2ktheta * sin2ktheta 
                     - np.sin(2 * theta) * (sin2ktheta ** 2 + 3 * cos2ktheta ** 2)) / sin2ktheta ** 3 \
-                        / k / nShot / nShot * (1 - 2 * sin2ktheta * sin2ktheta) * cos2ktheta ** 2
+                        / k / nShot / nShot * (1 - 2 * sin2ktheta * sin2ktheta) * cos2ktheta ** 2 / 6
     
     return BiasTaylorExpTo2nd(ampSq, nGrover, nShot) + term2nd
 
