@@ -1,4 +1,5 @@
 import numpy as np
+import scipy as sp
 
 def ExpectedLogLikDer2nd(ampSq, nGrover, nShot):
     
@@ -67,3 +68,25 @@ def BiasTaylorExpTo4th(ampSq, nGrover, nShot):
        3 * p1Final ** 2 * (1 - p1Final) ** 2 / nShot ** 2
     
     return BiasTaylorExpTo3rd(ampSq, nGrover, nShot) + thetaDeriv4th * moment4th / 24
+
+def BiasExact(ampSq, nGrover, nShot):
+
+    theta = np.arcsin(np.sqrt(ampSq))
+    kRound = 2 * nGrover + 1
+    prob1 = np.sin(kRound * theta) ** 2
+    rRound = int(kRound * theta / (0.5 * np.pi))
+
+    n1s = np.arange(0, nShot + 1)
+    if rRound % 2 == 0:
+        gammaMLs = np.arcsin(np.sqrt(n1s / nShot))
+    else:
+        gammaMLs = 0.5 * np.pi - np.arcsin(np.sqrt(n1s / nShot))
+
+    thetaMLs = (rRound * 0.5 * np.pi + gammaMLs) / kRound
+    ampSqMLs = np.sin(thetaMLs) ** 2
+
+    pmfs = sp.stats.binom.pmf(n1s, nShot, prob1)
+
+    return np.dot(ampSqMLs - ampSq, pmfs)
+
+    
