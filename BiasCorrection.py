@@ -5,7 +5,7 @@ def ExpectedLogLikDer2nd(ampSq, nGrover, nShot):
     
     theta = np.arcsin(np.sqrt(ampSq))
     k = 2 * nGrover + 1
-    return -2 * nShot * k * k / np.sin(2 * theta) ** 2
+    return -4 * nShot * k * k / np.sin(2 * theta) ** 2
 
 def ExpectedLogLikDer3rd(ampSq, nGrover, nShot):
     
@@ -14,18 +14,32 @@ def ExpectedLogLikDer3rd(ampSq, nGrover, nShot):
     sin2theta = np.sin(2 * theta)
     tanktheta = np.tan(k * theta)
 
-    return 4 * nShot * k * k * (k * (1/ tanktheta - tanktheta) * sin2theta + 3) / sin2theta ** 4
+    return 4 * nShot * k * k * (k * (1/ tanktheta - tanktheta) * sin2theta + 3 * np.cos(2 * theta)) / sin2theta ** 4
+
+def ExpectedLogLikDer1st2nd(ampSq, nGrover, nShot):
+    
+    theta = np.arcsin(np.sqrt(ampSq))
+    k = 2 * nGrover + 1
+    sin2theta = np.sin(2 * theta)
+    tanktheta = np.tan(k * theta)
+    
+    return -4 * nShot * k * k * (k * (1 / tanktheta - tanktheta) * sin2theta + 2 * np.cos(2 * theta)) / sin2theta ** 4
 
 def DerExpectedLogLikDer2nd(ampSq, nGrover, nShot):
     
     theta = np.arcsin(np.sqrt(ampSq))
     k = 2 * nGrover + 1
 
-    return 8 * nShot * k * k * np.cos(2 * theta) / np.sin(2 * theta) ** 4
+    return 16 * nShot * k * k * np.cos(2 * theta) / np.sin(2 * theta) ** 4
 
 def BiasCordeiroKlein(ampSq, nGrover, nShot):
     
     return (DerExpectedLogLikDer2nd(ampSq, nGrover, nShot) - 0.5 * ExpectedLogLikDer3rd(ampSq, nGrover, nShot)) / \
+        ExpectedLogLikDer2nd(ampSq, nGrover, nShot) ** 2
+
+def BiasCoxSnell(ampSq, nGrover, nShot):
+    
+    return (ExpectedLogLikDer1st2nd(ampSq, nGrover, nShot) + 0.5 * ExpectedLogLikDer3rd(ampSq, nGrover, nShot)) / \
         ExpectedLogLikDer2nd(ampSq, nGrover, nShot) ** 2
 
 def BiasTaylorExpTo2nd(ampSq, nGrover, nShot):
