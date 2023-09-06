@@ -1,6 +1,6 @@
 import numpy as np
 
-def IQAEBinom_OnlyFinalRound_EndCIReachTol(ampSq, nGrover, epsilon, alpha, nShotUnit):
+def IQAEBinom_OnlyFinalRound_EndCIReachTol(ampSq, nGrover, epsilon, alpha, nShotUnit, minRatio=None):
 
     theta = np.arcsin(np.sqrt(ampSq))
     kRound = 2 * nGrover + 1
@@ -45,6 +45,10 @@ def IQAEBinom_OnlyFinalRound_EndCIReachTol(ampSq, nGrover, epsilon, alpha, nShot
         if ampSqWidth <= epsilon:
             break
 
+        if minRatio is not None:
+            if _find_next_k(nGrover, thetaInterval, minRatio) > nGrover:
+                return None
+
     ret = {"Estimate":ampSqML,
            "TotalOracleCalls": (2 * nGrover + 1) *nShotRound,
            "nShots":nShotRound,
@@ -53,3 +57,37 @@ def IQAEBinom_OnlyFinalRound_EndCIReachTol(ampSq, nGrover, epsilon, alpha, nShot
            "ampSqIntervals":ampSqInterval}
     return ret
 
+def BiasFinalRound(ampSq, nGrover, epsilon, alpha, nShotUnit, nEstim, minRatio=None):
+
+    errs = []
+    for i in range(nEstim):
+        result = IQAEBinom_OnlyFinalRound_EndCIReachTol(ampSq, nGrover, epsilon, alpha, nShotUnit, minRatio=minRatio)
+        if result is None:
+            errs.append(np.nan)
+        else:
+            errs.append(result["Estimate"] - ampSq)
+    return np.nanmean(errs)
+
+def _find_next_k(
+    k_prev,
+    theta_interval,
+    minRatio
+) -> int:
+
+    # initialize variables
+    theta_l, theta_u = theta_interval
+    K_prev = 2 * k_prev + 1
+    K = int(0.5 * np.pi / (theta_u-theta_l))
+    K -= (K + 1) % 2 # subtract 1 if even
+    
+    while K >= minRatio * K_prev:
+        R_u = np.ceil(K * theta_u / (0.5 * np.pi)) - 1
+        R_l = int(K * theta_l / (0.5 * np.pi))
+        
+        # if (K * theta_u) - R_u < self._epsilon / 1000:
+        #     R_u -= 1
+        if R_u == R_l:
+            return (K - 1) // 2 # integer is guaranteed, but cast to int
+        K -= 2
+    
+    return k_prev
