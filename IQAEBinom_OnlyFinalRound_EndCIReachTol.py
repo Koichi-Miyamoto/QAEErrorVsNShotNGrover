@@ -1,6 +1,6 @@
 import numpy as np
 
-def IQAEBinom_OnlyFinalRound_EndCIReachTol(ampSq, nGrover, epsilon, alpha, nShotUnit, minRatio=None):
+def IQAEBinom_OnlyFinalRound_EndCIReachTol(ampSq, nGrover, epsilon, alpha, nShotUnit, minRatio=None, endCriterion="Amplitude"):
 
     theta = np.arcsin(np.sqrt(ampSq))
     kRound = 2 * nGrover + 1
@@ -42,12 +42,19 @@ def IQAEBinom_OnlyFinalRound_EndCIReachTol(ampSq, nGrover, epsilon, alpha, nShot
         ampSqML = np.sin(thetaML) ** 2
         ampSqWidth = max(ampSq_u - ampSqML, ampSqML - ampSq_l)
 
-        if ampSqWidth <= epsilon:
-            break
+        if endCriterion == "Amplitude":
+            if ampSqWidth <= epsilon:
+                break
+        elif endCriterion == "Angle":
+            if theta_u - theta_l <= 2 * epsilon:
+                break
+        else:
+            raise Exception("Unknown end criterion:" + endCriterion)
 
         if minRatio is not None:
             if _find_next_k(nGrover, thetaInterval, minRatio) > nGrover:
-                return None
+                ampSqML = np.NaN
+                break
 
     ret = {"Estimate":ampSqML,
            "TotalOracleCalls": (2 * nGrover + 1) *nShotRound,

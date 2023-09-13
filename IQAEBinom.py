@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.stats import beta
 
-def IQAEBinom(ampSq, epsilon, alpha, nShotUnit, confint_method="chernoff", minRatio=2):
+def IQAEBinom(ampSq, epsilon, alpha, nShotUnit, confint_method="chernoff", minRatio=2, endCriterion="Amplitude"):
 
     theta = np.arcsin(np.sqrt(ampSq))
     nGrover = 0
@@ -62,9 +62,16 @@ def IQAEBinom(ampSq, epsilon, alpha, nShotUnit, confint_method="chernoff", minRa
             ampSqML = np.sin(thetaML) ** 2
             ampSqWidth = max(ampSq_u - ampSqML, ampSqML - ampSq_l)
 
-            if ampSqWidth <= epsilon:
-                flgStop = True
-                break
+            if endCriterion == "Amplitude":
+                if ampSqWidth <= epsilon:
+                    flgStop = True
+                    break
+            elif endCriterion == "Angle":
+                if theta_u - theta_l <= 2 * epsilon:
+                    flgStop = True
+                    break
+            else:
+                raise Exception("Unknown end criterion:" + endCriterion)
             
             nGrover = _find_next_k(nGrover, thetaInterval, minRatio)
         

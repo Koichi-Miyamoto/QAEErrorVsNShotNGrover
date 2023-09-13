@@ -1,7 +1,7 @@
 import numpy as np
 from scipy.stats import beta
 
-def IQAEBinom_FinalRoundRedo(ampSq, epsilon, alpha, nShotUnit, confint_method="chernoff", minRatio=2):
+def IQAEBinom_FinalRoundRedo(ampSq, epsilon, alpha, nShotUnit, confint_method="chernoff", minRatio=2, endCriterion="Amplitude"):
 
     theta = np.arcsin(np.sqrt(ampSq))
     nGrover = 0
@@ -72,10 +72,19 @@ def IQAEBinom_FinalRoundRedo(ampSq, epsilon, alpha, nShotUnit, confint_method="c
             if isFinalRound:
                 goNextRound = True
                 flgStop = True
-            elif ampSqWidth <= epsilon:
-                goNextRound = True
-                isFinalRound = True
             else:
+                if endCriterion == "Amplitude":
+                    if ampSqWidth <= epsilon:
+                        goNextRound = True
+                        isFinalRound = True
+                elif endCriterion == "Angle":
+                    if theta_u - theta_l <= 2 * epsilon:
+                        goNextRound = True
+                        isFinalRound = True
+                else:
+                    raise Exception("Unknown end criterion:" + endCriterion)
+            
+            if not(isFinalRound):
                 nGrover = _find_next_k(nGrover, thetaInterval, minRatio)
                 if nGrover > nGroverPrev:
                     goNextRound = True        
