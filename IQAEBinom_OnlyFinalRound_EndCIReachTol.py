@@ -1,6 +1,14 @@
 import numpy as np
 
-def IQAEBinom_OnlyFinalRound_EndCIReachTol(ampSq, nGrover, epsilon, alpha, nShotUnit, minRatio=None, endCriterion="Amplitude"):
+def IQAEBinom_OnlyFinalRound_EndCIReachTol(
+        ampSq,
+        nGrover,
+        epsilon,
+        alpha,
+        nShotUnit,
+        minRatio=None,
+        endCriterion="Amplitude",
+        log=False):
 
     theta = np.arcsin(np.sqrt(ampSq))
     kRound = 2 * nGrover + 1
@@ -10,6 +18,9 @@ def IQAEBinom_OnlyFinalRound_EndCIReachTol(ampSq, nGrover, epsilon, alpha, nShot
     alphaRound = 2 * alpha / 3 * kRound / kmax
     nShotRound = 0
     n1Round = 0
+    if log:
+        measureOutcomes = []
+        intermediateIntervals = []
 
     while True:
         nShotRound += nShotUnit
@@ -35,6 +46,10 @@ def IQAEBinom_OnlyFinalRound_EndCIReachTol(ampSq, nGrover, epsilon, alpha, nShot
         theta_l = (rRound * 0.5 * np.pi + gammaMin) / kRound
         thetaInterval = [theta_l, theta_u]
         thetaML = (rRound * 0.5 * np.pi + gammaML) / kRound
+        if log:
+            intermediateIntervals.append(thetaInterval)
+            measureOutcomes.append(n1)
+
 
         ampSq_u = np.sin(theta_u) ** 2
         ampSq_l = np.sin(theta_l) ** 2
@@ -62,6 +77,9 @@ def IQAEBinom_OnlyFinalRound_EndCIReachTol(ampSq, nGrover, epsilon, alpha, nShot
            "n1s":n1Round,
            "thetaIntervals":thetaInterval,
            "ampSqIntervals":ampSqInterval}
+    if log:
+        ret["IntermediateIntervals"] = intermediateIntervals
+        ret["measureOutcomes"] = measureOutcomes
     return ret
 
 def BiasFinalRound(ampSq, nGrover, epsilon, alpha, nShotUnit, nEstim, minRatio=None):
